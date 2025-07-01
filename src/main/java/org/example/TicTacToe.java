@@ -6,9 +6,10 @@ public class TicTacToe {
     private Board board;
     private Player turn;
     private Player[] players = new Player[2];
+    private Scanner scanner = new Scanner(System.in);
 
     public TicTacToe() {
-        reset();
+        gameLoop();
     }
 
     public void reset() {
@@ -16,7 +17,6 @@ public class TicTacToe {
         players[0] = new Player(Utils.X);
         players[1] = new Player(Utils.O);
         turn = players[0];
-        gameLoop();
     }
 
     public boolean checkForWinCondition(int position1, int position2, int position3) {
@@ -86,38 +86,41 @@ public class TicTacToe {
     }
 
     public void gameLoop() {
-        Scanner scanner = new Scanner(System.in);
-        String position;
-        printBoard();
-        while (true) {
+        boolean keepPlaying = true;
+        while (keepPlaying) {
+            reset();
+            String position;
+            printBoard();
             while (true) {
-                System.out.println("\nPlayer " + getTurn() + ", please pick a position from 1-9");
-                position = scanner.nextLine();
-                if (!isInputValid(position) || isPositionTaken(Integer.parseInt(position))) {
-                    System.out.println("\nTry again! That position is either taken or you have given an invalid input! :(");
-                    printBoard();
-                } else {
+                while (true) {
+                    System.out.println("Player " + getTurn() + ", please pick a position from 1-9");
+                    position = scanner.nextLine();
+                    if (!isInputValid(position) || isPositionTaken(Integer.parseInt(position))) {
+                        System.out.println("\nTry again! That position is either taken or you have given an invalid input! :(");
+                        printBoard();
+                    } else {
+                        break;
+                    }
+                }
+
+                placeSymbol(Integer.parseInt(position));
+                printBoard();
+                if (checkForWinner()) {
+                    System.out.println("Player " + getTurn() + " wins! :)");
                     break;
                 }
+                if (checkForDraw()) {
+                    System.out.println("Draw. No player won :/");
+                    break;
+                }
+                changeTurn();
             }
-            placeSymbol(Integer.parseInt(position));
-            printBoard();
-            if (checkForWinner()) {
-                System.out.println("Player " + getTurn() + " wins! :)");
-                break;
+            System.out.println("\nIf you would like to restart, type Y/y, otherwise enter anything to end the game. :D");
+            String decision = scanner.nextLine();
+            if (!shouldContinueGame(decision)) {
+                keepPlaying = false;
             }
-            if (checkForDraw()) {
-                System.out.println("Draw. No player won :/");
-                break;
-            }
-            changeTurn();
         }
-        System.out.println("\nIf you would like to restart, type Y/y, otherwise enter anything to end the game. :D");
-        String decision = scanner.nextLine();
-        if (shouldContinueGame(decision)) {
-            reset();
-        }
-
-
+        scanner.close();
     }
 }
